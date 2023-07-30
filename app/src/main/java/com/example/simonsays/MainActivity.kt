@@ -1,6 +1,7 @@
 package com.example.simonsays
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -60,6 +61,8 @@ class MainActivity : ComponentActivity() {
 fun SimonSaysGame() {
     val isSimonTurn = remember { mutableStateOf(true) }
     val boxColors = remember { mutableStateMapOf<Int, Color>() }
+    var level = 1
+    var clickCounter = 0
     LaunchedEffect(isSimonTurn.value) {
         if (isSimonTurn.value) {
             SimonActions(boxColors) {
@@ -82,7 +85,15 @@ fun SimonSaysGame() {
                             .background(color = boxColors[boxIndex] ?: Color.Green)
                             .clickable {
                                 if (!isSimonTurn.value) {
-                                    BoxChangeColor(boxIndex, boxColors)
+                                    BoxChangeColor(boxIndex, boxColors, true)
+                                    clickCounter++
+                                    if (level == clickCounter){
+                                        level++
+                                        CheckforWinner()
+                                        SimonActions(boxColors){
+
+                                        }
+                                    }
                                 }
 
 
@@ -93,13 +104,23 @@ fun SimonSaysGame() {
         }
     }
 }
-fun BoxChangeColor(boxIndex: Int, boxColors: MutableMap<Int, Color>) {
+var playerList = mutableListOf<Int>()
+var simonList = mutableListOf<Int>()
+fun BoxChangeColor(boxIndex: Int, boxColors: MutableMap<Int, Color>,playerClick: Boolean){
+
+    if(playerClick){
+        playerList.add(boxIndex)
+    } else if (!playerClick){
+        simonList.add(boxIndex)
+    }
         CoroutineScope(Dispatchers.Main).launch{
             boxColors[boxIndex] = Color.Blue
             delay(200)
             boxColors[boxIndex] = Color.Green
 
         }
+    Log.d("PlayerList","$playerList")
+    Log.d("SimonList","$simonList")
     }
 
 
@@ -108,7 +129,7 @@ fun BoxChangeColor(boxIndex: Int, boxColors: MutableMap<Int, Color>) {
             repeat(5) {
                 delay(1000)
                 val boxIndex = Random.nextInt(9)
-                BoxChangeColor(boxIndex, boxColors)
+                BoxChangeColor(boxIndex, boxColors,false)
             }
             onSimonTurnComplete()
         }
