@@ -40,6 +40,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.rememberNavController
 import com.example.simonsays.ui.theme.SimonSaysTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -53,6 +55,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            val navController = rememberNavController()
+
             SimonSaysTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
@@ -74,6 +78,7 @@ var level = 1
 var clickCounter = 0
 val isSimonTurn =  mutableStateOf(true)
 var timer by mutableStateOf(10)
+var lives = 5
 
 @Preview
 @Composable
@@ -88,7 +93,7 @@ fun SimonSaysGame() {
                 timer -= 1
             }
             if (timer == 0){
-                gameLose.value = true
+                CheckForWinner(boxColors)
             }
         }
 
@@ -112,16 +117,13 @@ LaunchedEffect(isSimonTurn) {
         Box(
 
             modifier = Modifier
-                .size(100.dp)
-                .background(Color.Green, RoundedCornerShape(20.dp))
-                .border(5.dp, Color.Black, RoundedCornerShape(10)),
+                .size(200.dp),
             Alignment.Center
         ){
 
             Text(
 
-                text = "$level\nLevel",
-                color = Color.Black,
+                text = "$level\nLevel\nLives Left\n$lives",
                 textAlign = TextAlign.Center,
                 fontSize = 30.sp
 
@@ -161,13 +163,13 @@ LaunchedEffect(isSimonTurn) {
 
         Box(
             modifier = Modifier
-                .size(100.dp)
-                .background(Color.Green, RoundedCornerShape(20.dp))
-                .border(5.dp, Color.Black, RoundedCornerShape(10)),
+                .size(100.dp),
             Alignment.Center
         ){
-            Text(text = "$timer",
-                textAlign = TextAlign.Center
+            Text(text = "Time Left\n$timer",
+                textAlign = TextAlign.Center,
+                fontSize = 20.sp
+
             )
 
         }
@@ -187,8 +189,17 @@ fun CheckForWinner(boxColors: MutableMap<Int, Color>) {
             clickCounter = 0
             isSimonTurn.value = false
         }
-    } else {
+    } else if (simonList !== playerList && lives == 0) {
         gameLose.value = true
+    } else if (simonList !== playerList && lives > 0){
+        lives--
+        simonList.clear()
+        playerList.clear()
+        timer = 10
+        SimonActions(boxColors) {
+            clickCounter = 0
+            isSimonTurn.value = false
+        }
     }
 
 }
@@ -244,11 +255,10 @@ fun LosingScreen(){
                     simonList.clear()
                     clickCounter = 0
                     level = 1
+                    lives = 5
                     isSimonTurn.value = true
                     timer = 10
                     gameLose.value = false
-
-
                 },
             Alignment.Center
         ){
