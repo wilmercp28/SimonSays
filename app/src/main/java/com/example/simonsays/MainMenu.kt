@@ -1,5 +1,6 @@
 package com.example.simonsays
 
+import android.app.Activity
 import android.app.ListActivity
 import android.content.Intent
 import android.content.res.Resources.Theme
@@ -29,9 +30,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.ActivityNavigator
 import androidx.navigation.NavController
-import androidx.navigation.NavDestination
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -54,14 +54,11 @@ class MainMenu : ComponentActivity() {
         }
     }
 }
+
 @Preview
 @Composable
 fun Menu(){
-    val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = "MainMenu"){
-        composable("MainMenu"){ Menu()}
-        composable("MainActivity"){MainActivity()}
-    }
+    val context = LocalContext.current
     Column(
         Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -76,7 +73,8 @@ fun Menu(){
         Spacer(modifier = Modifier.size(60.dp))
 
         Button({
-            navController.navigate("MainActivity")
+val intent = Intent(context, MainActivity::class.java)
+            context.startActivity(intent)
         },
             modifier = Modifier
                 .size(height = 100.dp, width = 300.dp)
@@ -97,7 +95,9 @@ fun Menu(){
                 fontSize = 30.sp
             )
         }
-        Button({},
+        Button({
+            (context as? Activity)?.finish()
+        },
             modifier = Modifier
                 .size(height = 100.dp, width = 300.dp)
         ){
