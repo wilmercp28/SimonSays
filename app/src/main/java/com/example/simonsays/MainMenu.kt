@@ -86,7 +86,10 @@ val intent = Intent(context, MainActivity::class.java)
                 fontSize = 30.sp
             )
         }
-        Button({},
+        Button({
+            val intent = Intent(context, Settings::class.java)
+            context.startActivity(intent)
+        },
             modifier = Modifier
                 .size(height = 100.dp, width = 300.dp)
         ){
@@ -96,7 +99,7 @@ val intent = Intent(context, MainActivity::class.java)
             )
         }
         Button({
-            (context as? Activity)?.finish()
+            (context as? Activity)?.finishAffinity()
         },
             modifier = Modifier
                 .size(height = 100.dp, width = 300.dp)
